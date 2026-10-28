@@ -27,13 +27,13 @@ export function Hero() {
         className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,rgb(255_255_255/0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgb(255_255_255/0.05)_1px,transparent_1px)] bg-size-[48px_48px] mask-[radial-gradient(ellipse_at_center,black,transparent_75%)]"
       />
 
-      <Container className="grid items-center gap-12 py-20 sm:py-28 lg:grid-cols-2">
-        <div className="space-y-8">
+      <Container className="grid grid-cols-1 items-center gap-12 py-16 sm:py-28 lg:grid-cols-2">
+        <div className="min-w-0 space-y-8">
           <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white/80 ring-1 ring-white/15">
             <MapPinIcon className="size-3.5" aria-hidden />
             Now open in {siteConfig.branch}
           </p>
-          <h1 className="text-5xl leading-[1.05] font-extrabold tracking-tight text-balance uppercase sm:text-6xl lg:text-7xl">
+          <h1 className="text-4xl leading-[1.05] font-extrabold tracking-tight text-balance break-words uppercase min-[400px]:text-5xl sm:text-6xl lg:text-7xl">
             Stronger <span className="text-primary brightness-150">starts</span> here.
           </h1>
           <p className="max-w-xl text-lg text-pretty text-white/70">
@@ -86,7 +86,7 @@ function HeroPreview() {
   ];
 
   return (
-    <div aria-hidden className="relative mx-auto w-full max-w-md lg:mr-0">
+    <div aria-hidden className="relative mx-auto w-full max-w-md min-w-0 lg:mr-0">
       <div className="rounded-2xl bg-white/5 p-5 ring-1 ring-white/10 backdrop-blur">
         <div className="mb-4 flex items-center justify-between">
           <p className="font-heading font-bold">Today&apos;s classes</p>

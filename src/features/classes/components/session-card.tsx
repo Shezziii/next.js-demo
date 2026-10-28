@@ -2,8 +2,8 @@ import { MapPinIcon, UserIcon } from "lucide-react";
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
-import { BookSessionButton } from "@/features/bookings/components/book-session-button";
-import { formatDuration, formatTime } from "@/lib/format";
+import { AddToCartButton } from "@/features/cart/components/add-to-cart-button";
+import { formatDuration, formatMoney, formatTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 import { levelLabels } from "../constants";
@@ -13,13 +13,14 @@ import { CategoryBadge } from "./category-badge";
 type SessionCardProps = {
   session: ClassSession;
   isBooked: boolean;
+  isInCart: boolean;
   isAuthenticated: boolean;
   /** Set false on the class's own detail page, where linking to itself is pointless. */
   showClassLink?: boolean;
 };
 
 /** One bookable session in the timetable. */
-export function SessionCard({ session, isBooked, isAuthenticated, showClassLink = true }: SessionCardProps) {
+export function SessionCard({ session, isBooked, isInCart, isAuthenticated, showClassLink = true }: SessionCardProps) {
   const isFull = session.spotsLeft <= 0;
   const isLow = !isFull && session.spotsLeft <= 3;
 
@@ -62,18 +63,22 @@ export function SessionCard({ session, isBooked, isAuthenticated, showClassLink 
       </div>
 
       <div className="flex items-center justify-between gap-4 sm:justify-end">
-        <p
-          className={cn(
-            "text-sm text-muted-foreground",
-            isLow && "font-medium text-orange-600 dark:text-orange-400",
-            isFull && "text-destructive",
-          )}
-        >
-          {isFull ? "No spots left" : `${session.spotsLeft} of ${session.capacity} spots left`}
-        </p>
-        <BookSessionButton
+        <div className="text-sm sm:text-right">
+          <p className="font-semibold">{formatMoney(session.price)}</p>
+          <p
+            className={cn(
+              "text-muted-foreground",
+              isLow && "font-medium text-orange-600 dark:text-orange-400",
+              isFull && "text-destructive",
+            )}
+          >
+            {isFull ? "No spots left" : `${session.spotsLeft} of ${session.capacity} spots left`}
+          </p>
+        </div>
+        <AddToCartButton
           session={session}
           isBooked={isBooked}
+          isInCart={isInCart}
           isAuthenticated={isAuthenticated}
           className="min-w-24"
         />

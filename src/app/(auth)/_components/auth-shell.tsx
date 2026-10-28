@@ -12,7 +12,6 @@ type AuthShellProps = {
   children: React.ReactNode;
 };
 
-/** Split layout for login/register: image panel on the left (lg+), form on the right. */
 export function AuthShell({ image, imageAlt, imageIcon, tagline, points, children }: AuthShellProps) {
   return (
     <div className="grid min-h-[calc(100svh-4rem)] lg:grid-cols-2">

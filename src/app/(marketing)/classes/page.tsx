@@ -1,4 +1,5 @@
 import { CalendarDaysIcon, CalendarSearchIcon, DumbbellIcon } from "lucide-react";
+import { connection } from "next/server";
 import { Suspense } from "react";
 
 import { CardGridSkeleton } from "@/components/shared/card-grid-skeleton";
@@ -67,7 +68,12 @@ export default function ClassesPage() {
   );
 }
 
+const CATALOGUE_DEMO_DELAY_MS = 8000;
+
 async function ClassCatalogue() {
+  await connection();
+  await new Promise((resolve) => setTimeout(resolve, CATALOGUE_DEMO_DELAY_MS));
+
   const [classes, trainers] = await Promise.all([getClasses(), getTrainers()]);
   const trainerName = new Map(trainers.map((t) => [t.id, t.name]));
 

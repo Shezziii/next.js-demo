@@ -1,10 +1,12 @@
 import "server-only";
 
 import type { Booking } from "@/features/bookings/types";
+import { getOrderTotals } from "@/features/checkout/pricing";
+import type { Order, PaymentDetails } from "@/features/checkout/types";
 import type { ClassSession } from "@/features/classes/types";
 import type { Enquiry } from "@/features/enquiries/types";
 import { ApiError } from "@/lib/api/errors";
-import { toDateKey } from "@/lib/format";
+import { formatDate, formatTime, toDateKey } from "@/lib/format";
 
 import { classes, plans, rooms, trainers, weeklyTimetable } from "./data";
 
@@ -44,6 +46,7 @@ function sessionsForDay(dateKey: string): Omit<ClassSession, "spotsLeft">[] {
       room: slot.room,
       startsAt: `${dateKey}T${slot.time}:00${IST_OFFSET}`,
       durationMinutes: gymClass.durationMinutes,
+      price: gymClass.price,
       capacity: rooms[slot.room],
     };
   });
@@ -74,7 +77,7 @@ function findSession(sessionId: string) {
 // Bookings store (kept on globalThis so it survives dev hot reloads)
 // ---------------------------------------------------------------------------
 
-type MockDb = { bookings: Map<string, Booking[]>; enquiries: Enquiry[] };
+type MockDb = { bookings: Map<string, Booking[]>; orders: Map<string, Order[]>; enquiries: Enquiry[] };
 const store = globalThis as typeof globalThis & { __goldsGymMockDb?: MockDb };
 
 function toBooking(session: ClassSession | Omit<ClassSession, "spotsLeft">, status: Booking["status"]): Booking {
@@ -98,6 +101,7 @@ function seed(): MockDb {
     bookings: new Map([
       ["usr_001", [toBooking(upcoming, "confirmed"), ...[2, 4, 7, 9].map((d) => toBooking(evening(d), "attended"))]],
     ]),
+    orders: new Map(),
     enquiries: [],
   };
 }
@@ -105,7 +109,40 @@ function seed(): MockDb {
 function db() {
   const db = (store.__goldsGymMockDb ??= seed());
   db.enquiries ??= []; // stores created before enquiries existed (dev hot reload)
+  db.orders ??= new Map();
   return db;
+}
+
+/** Throws the same errors the backend would if this member can't book this session right now. */
+function assertBookable(userId: string, sessionId: string) {
+  const session = findSession(sessionId);
+  if (!session) throw new ApiError("One of these class sessions no longer exists.", { status: 404, code: "NOT_FOUND" });
+  // Orders can hold several classes, so say which one is the problem.
+  const name = `${session.className} on ${formatDate(session.startsAt)} at ${formatTime(session.startsAt)}`;
+  if (new Date(session.startsAt).getTime() <= Date.now())
+    throw new ApiError(`${name} has already started.`, { status: 422, code: "SESSION_STARTED" });
+  if ((db().bookings.get(userId) ?? []).some((b) => b.session.id === sessionId && b.status === "confirmed"))
+    throw new ApiError(`You've already booked ${name}.`, { status: 409, code: "ALREADY_BOOKED" });
+  if (session.spotsLeft <= 0) throw new ApiError(`Sorry, ${name} is full.`, { status: 409, code: "CLASS_FULL" });
+  return session;
+}
+
+// ---------------------------------------------------------------------------
+// Payment gateway stand-in
+// ---------------------------------------------------------------------------
+
+function cardBrand(cardNumber: string) {
+  if (cardNumber.startsWith("4")) return "Visa";
+  if (/^(5[1-5]|2[2-7])/.test(cardNumber)) return "Mastercard";
+  if (/^3[47]/.test(cardNumber)) return "Amex";
+  if (/^(60|65|81|82|508)/.test(cardNumber)) return "RuPay";
+  return "Card";
+}
+
+/** Pretends to charge the member (always succeeds). Returns a label that is safe to store and show. */
+function charge(payment: PaymentDetails) {
+  if (payment.method === "upi") return payment.upiId;
+  return `${cardBrand(payment.cardNumber)} •••• ${payment.cardNumber.slice(-4)}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -123,21 +160,38 @@ export const mockApi = {
   listBookings: async (userId: string) =>
     [...(db().bookings.get(userId) ?? [])].sort((a, b) => a.session.startsAt.localeCompare(b.session.startsAt)),
 
-  createBooking: async (userId: string, sessionId: string) => {
-    const session = findSession(sessionId);
-    if (!session) throw new ApiError("This class session no longer exists.", { status: 404, code: "NOT_FOUND" });
-    if (new Date(session.startsAt).getTime() <= Date.now())
-      throw new ApiError("This class has already started.", { status: 422, code: "SESSION_STARTED" });
+  /**
+   * Checks every session, charges once for all of them, then books the spots. All or nothing:
+   * if any class can't be booked, nothing is charged. Prices always come from the server.
+   */
+  createOrder: async (
+    userId: string,
+    input: { sessionIds: string[]; attendee: Order["attendee"]; payment: PaymentDetails },
+  ): Promise<Order> => {
+    if (input.sessionIds.length === 0) throw new ApiError("Your cart is empty.", { status: 422, code: "EMPTY_ORDER" });
+    const sessions = input.sessionIds.map((id) => assertBookable(userId, id));
+    const paymentLabel = charge(input.payment);
 
-    const bookings = db().bookings.get(userId) ?? [];
-    if (bookings.some((b) => b.session.id === sessionId && b.status === "confirmed"))
-      throw new ApiError("You've already booked this class.", { status: 409, code: "ALREADY_BOOKED" });
-    if (session.spotsLeft <= 0)
-      throw new ApiError("Sorry, this class is full.", { status: 409, code: "CLASS_FULL" });
+    const bookings = sessions.map((session) => toBooking(session, "confirmed"));
+    db().bookings.set(userId, [...(db().bookings.get(userId) ?? []), ...bookings]);
 
-    const booking = toBooking(session, "confirmed");
-    db().bookings.set(userId, [...bookings, booking]);
-    return booking;
+    const order: Order = {
+      id: `ord_${hash(`${bookings[0].id}${Date.now()}`).toString(36)}`,
+      status: "paid",
+      createdAt: new Date().toISOString(),
+      items: bookings.map((booking, i) => ({ bookingId: booking.id, session: booking.session, price: sessions[i].price })),
+      attendee: input.attendee,
+      payment: { method: input.payment.method, label: paymentLabel },
+      ...getOrderTotals(sessions.map((s) => s.price)),
+    };
+    db().orders.set(userId, [...(db().orders.get(userId) ?? []), order]);
+    return order;
+  },
+
+  getOrder: async (userId: string, orderId: string) => {
+    const order = db().orders.get(userId)?.find((o) => o.id === orderId);
+    if (!order) throw new ApiError("Order not found.", { status: 404, code: "NOT_FOUND" });
+    return order;
   },
 
   createEnquiry: async (input: Omit<Enquiry, "id" | "createdAt">): Promise<Enquiry> => {

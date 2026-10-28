@@ -20,13 +20,15 @@ export type ScheduleDay = {
 type ScheduleTabsProps = {
   days: ScheduleDay[];
   bookedSessionIds: string[];
+  cartSessionIds: string[];
   isAuthenticated: boolean;
   showClassLink?: boolean;
 };
 
 /** Day-by-day timetable. Data is prepared on the server; this only handles tab switching. */
-export function ScheduleTabs({ days, bookedSessionIds, isAuthenticated, showClassLink }: ScheduleTabsProps) {
+export function ScheduleTabs({ days, bookedSessionIds, cartSessionIds, isAuthenticated, showClassLink }: ScheduleTabsProps) {
   const booked = new Set(bookedSessionIds);
+  const inCart = new Set(cartSessionIds);
 
   return (
     <Tabs defaultValue={days[0]?.key}>
@@ -55,6 +57,7 @@ export function ScheduleTabs({ days, bookedSessionIds, isAuthenticated, showClas
                 key={session.id}
                 session={session}
                 isBooked={booked.has(session.id)}
+                isInCart={inCart.has(session.id)}
                 isAuthenticated={isAuthenticated}
                 showClassLink={showClassLink}
               />

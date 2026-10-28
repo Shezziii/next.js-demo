@@ -5,14 +5,11 @@ import { siteConfig } from "@/config/site";
 type PageMetadataInput = {
   title: string;
   description?: string;
-  /** Path relative to the site root, e.g. "/classes". Used for the canonical URL. */
   path: string;
   image?: string;
-  /** Hide from search engines (login, account pages…). */
   noIndex?: boolean;
 };
 
-/** Consistent per-page metadata: title, canonical, Open Graph, Twitter. */
 export function createMetadata({
   title,
   description = siteConfig.description,

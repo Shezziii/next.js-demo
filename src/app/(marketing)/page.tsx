@@ -18,10 +18,7 @@ import { Features, StatsStrip } from "./_components/highlights";
 import { Hero } from "./_components/hero";
 import { VisitCta } from "./_components/visit-cta";
 
-/**
- * Public landing page. Reads no request data, and every query is `use cache`,
- * so the whole page is prerendered into the static shell.
- */
+
 export default async function LandingPage() {
   const [classes, plans, trainers] = await Promise.all([getClasses(), getPlans(), getTrainers()]);
   const trainerName = new Map(trainers.map((t) => [t.id, t.name]));

@@ -13,8 +13,12 @@ export const endpoints = {
   },
   bookings: {
     list: "/me/bookings",
-    create: "/me/bookings",
     cancel: (id: string) => `/me/bookings/${encodeURIComponent(id)}`,
+  },
+  /** Paying for a class creates the booking, so there is no separate "create booking" endpoint. */
+  orders: {
+    create: "/me/orders",
+    byId: (id: string) => `/me/orders/${encodeURIComponent(id)}`,
   },
   plans: {
     list: "/membership-plans",

@@ -27,7 +27,7 @@ import { ScheduleSkeleton } from "@/features/classes/components/schedule-skeleto
 import { categoryMeta, levelLabels } from "@/features/classes/constants";
 import { getClassBySlug, getClasses } from "@/features/classes/server/queries";
 import { getTrainers } from "@/features/trainers/server/queries";
-import { formatDuration, getInitials } from "@/lib/format";
+import { formatDuration, formatMoney, getInitials } from "@/lib/format";
 import { createMetadata } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
@@ -127,6 +127,10 @@ export default async function ClassDetailPage({ params }: PageProps<"/classes/[s
                 </div>
               ))}
             </dl>
+            <p className="text-muted-foreground">
+              <span className="font-heading text-3xl font-extrabold text-foreground">{formatMoney(gymClass.price)}</span>{" "}
+              per session + GST
+            </p>
             <div className="flex flex-wrap gap-3">
               <a href="#sessions" className={cn(buttonVariants({ size: "lg" }), "h-11 px-5 text-base")}>
                 <CalendarDaysIcon data-icon="inline-start" />

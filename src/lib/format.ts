@@ -3,7 +3,6 @@ import type { Money } from "@/types/common";
 
 const { locale, timeZone } = siteConfig;
 
-/** 199900 paise → "₹1,999" */
 export function formatMoney({ amount, currency }: Money) {
   return new Intl.NumberFormat(locale, {
     style: "currency",
@@ -12,7 +11,7 @@ export function formatMoney({ amount, currency }: Money) {
   }).format(amount / 100);
 }
 
-/** Times always shown in IST, so server and browser render the same text. */
+
 export function formatTime(iso: string) {
   return new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit", timeZone }).format(
     new Date(iso),

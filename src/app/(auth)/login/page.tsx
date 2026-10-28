@@ -32,7 +32,6 @@ export default function LoginPage() {
           <CardDescription>Sign in to book classes and manage your membership.</CardDescription>
         </CardHeader>
         <CardContent>
-          {/* LoginForm reads ?from= via useSearchParams, which needs a Suspense boundary. */}
           <Suspense fallback={<LoginFormSkeleton />}>
             <LoginForm />
           </Suspense>

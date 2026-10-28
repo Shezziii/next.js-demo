@@ -4,7 +4,6 @@ import { useState } from "react";
 
 import type { EnquiryFormState } from "../schemas";
 
-/** Opens a modal after each successful submit, without effects: open until that attempt is dismissed. */
 export function useSuccessDialog(state: EnquiryFormState) {
   const [dismissedAttempt, setDismissedAttempt] = useState(0);
   return {

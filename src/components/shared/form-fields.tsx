@@ -6,10 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
-/**
- * Thin wrappers that wire shadcn Field + input + error together for Server Action forms
- * (uncontrolled inputs with `name`, errors from the action's `fieldErrors`).
- */
 
 type BaseProps = {
   name: string;

@@ -6,7 +6,6 @@ export type NavItem = {
   icon: LucideIcon;
 };
 
-/** Links shown in the header once a member is signed in. */
 export const memberNav: NavItem[] = [
   { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
   { title: "Classes", href: "/classes", icon: CalendarDaysIcon },

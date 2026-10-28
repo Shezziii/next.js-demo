@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { MediaImage } from "@/components/shared/media-image";
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatDuration } from "@/lib/format";
+import { formatDuration, formatMoney } from "@/lib/format";
 
 import { categoryMeta, levelLabels } from "../constants";
 import type { GymClass } from "../types";
@@ -45,10 +45,10 @@ export function ClassCard({ gymClass, trainerName }: { gymClass: GymClass; train
             {trainerName}
           </span>
         )}
-        <ArrowRightIcon
-          className="ml-auto size-4 text-primary transition-transform group-hover:translate-x-0.5"
-          aria-hidden
-        />
+        <span className="ml-auto flex items-center gap-1 text-sm font-semibold text-foreground">
+          {formatMoney(gymClass.price)}
+          <ArrowRightIcon className="size-4 text-primary transition-transform group-hover:translate-x-0.5" aria-hidden />
+        </span>
       </CardFooter>
     </Card>
   );

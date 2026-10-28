@@ -1,4 +1,4 @@
-import type { ID, ISODateString } from "@/types/common";
+import type { ID, ISODateString, Money } from "@/types/common";
 
 export type ClassCategory = "strength" | "cardio" | "hiit" | "mind-body" | "dance";
 export type ClassLevel = "beginner" | "intermediate" | "advanced" | "all-levels";
@@ -11,6 +11,8 @@ export type GymClass = {
   category: ClassCategory;
   level: ClassLevel;
   durationMinutes: number;
+  /** Drop-in price for one session, before GST. */
+  price: Money;
   description: string;
   trainerId: ID;
   /** Path under /public. Shows a placeholder until the file exists. */
@@ -32,6 +34,7 @@ export type ClassSession = {
   room: string;
   startsAt: ISODateString;
   durationMinutes: number;
+  price: Money;
   capacity: number;
   spotsLeft: number;
 };

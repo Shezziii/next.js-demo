@@ -31,6 +31,12 @@ export async function getSchedule(days = 7): Promise<ClassSession[]> {
   return apiClient.get<ClassSession[]>(endpoints.sessions.list, { query: { from: from.toISOString(), days } });
 }
 
+/** One bookable session. Reuses the cached schedule, so only sessions in the booking window are found. */
+export async function getSessionById(sessionId: string): Promise<ClassSession | null> {
+  const sessions = await getSchedule();
+  return sessions.find((s) => s.id === sessionId) ?? null;
+}
+
 /** Single class for the detail page. Reuses the cached catalogue, so no extra request. */
 export async function getClassBySlug(slug: string): Promise<GymClass | null> {
   const classes = await getClasses();

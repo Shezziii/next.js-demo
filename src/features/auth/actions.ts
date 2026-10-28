@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { authRoutes, safeRedirectPath } from "@/config/routes";
+import { writeCartIds } from "@/features/cart/server/cart-cookie";
 import { createSession, deleteSession } from "@/lib/auth/session";
 
 import { loginSchema, type LoginFormState } from "./schemas";
@@ -30,5 +31,7 @@ export async function login(prev: LoginFormState, formData: FormData): Promise<L
 
 export async function logout() {
   await deleteSession();
+  // The cart cookie isn't tied to a user, so don't leave it for whoever logs in next on this browser.
+  await writeCartIds([]);
   redirect(authRoutes.afterLogout);
 }

@@ -5,7 +5,7 @@ export const authRoutes = {
   afterLogin: "/dashboard",
   afterLogout: "/",
   /** Path prefixes that require a signed-in member. Classes and trainers are public; booking needs login. */
-  protected: ["/dashboard", "/bookings"],
+  protected: ["/dashboard", "/bookings", "/cart", "/checkout", "/orders"],
   /** Pages a signed-in member should skip (redirected to afterLogin). */
   guestOnly: ["/login", "/register"],
 } as const;

@@ -4,10 +4,7 @@ import { createHash, timingSafeEqual } from "node:crypto";
 
 import type { User } from "../types";
 
-/**
- * Dummy user directory standing in for the auth backend (endpoints.auth.*).
- * Replace these two functions with API calls when the backend is ready.
- */
+
 
 type UserRecord = User & { passwordHash: string };
 
@@ -18,7 +15,6 @@ const users: UserRecord[] = [
     id: "usr_001",
     name: "Imna Tuba",
     email: "imnatuba@novasarc.com",
-    // Demo only: a real backend stores a slow, salted hash (argon2/bcrypt), never a source literal.
     passwordHash: sha256("Novas@123").toString("hex"),
     membership: {
       planName: "Pro",

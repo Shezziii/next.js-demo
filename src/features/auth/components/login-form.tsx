@@ -16,10 +16,9 @@ const toErrors = (messages?: string[]) => messages?.map((message) => ({ message 
 
 export function LoginForm() {
   const [state, formAction, pending] = useActionState(login, { attempt: 0 } satisfies LoginFormState);
-  // Where to send the member after login (set by proxy.ts). Validated again on the server.
   const from = useSearchParams().get("from") ?? "";
 
-  // key: remount on each attempt, because Base UI inputs only read defaultValue once (on mount).
+
   return (
     <form key={state.attempt} action={formAction} noValidate>
       <input type="hidden" name="from" value={from} />

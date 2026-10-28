@@ -12,7 +12,8 @@ export type EnquiryTopic = (typeof enquiryTopics)[number]["value"];
 
 const topicValues = enquiryTopics.map((t) => t.value) as [EnquiryTopic, ...EnquiryTopic[]];
 
-const base = {
+/** Name, email and phone rules shared by every public form (enquiries, checkout). */
+export const contactFields = {
   name: z.string().trim().min(2, "Enter your full name.").max(80),
   email: z.email("Enter a valid email address.").trim().toLowerCase(),
   // Indian mobile numbers, with or without +91 / spaces.
@@ -24,7 +25,7 @@ const base = {
 
 /** Contact page: general questions. */
 export const contactSchema = z.object({
-  ...base,
+  ...contactFields,
   topic: z.enum(topicValues, "Choose a topic."),
   planId: z.string().optional(),
   message: z.string().trim().min(10, "Tell us a little more (at least 10 characters).").max(1000),
@@ -32,7 +33,7 @@ export const contactSchema = z.object({
 
 /** Join page: membership registration request. */
 export const registrationSchema = z.object({
-  ...base,
+  ...contactFields,
   planId: z.string().min(1, "Choose a membership plan."),
   goal: z.string().trim().max(500).optional(),
   consent: z.literal("on", "Please agree so our team can contact you."),

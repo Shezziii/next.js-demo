@@ -13,7 +13,7 @@ const amenities = [
   { icon: Building2Icon, label: "15,000 sq ft floor" },
 ];
 
-/** Image + copy split section introducing the gym. */
+
 export function About() {
   return (
     <section className="py-16 sm:py-20">

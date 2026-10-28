@@ -21,21 +21,16 @@ type ConfirmDialogProps = {
   onOpenChange: (open: boolean) => void;
   title: string;
   description?: React.ReactNode;
-  /** Extra content between the description and the buttons (e.g. a summary card). */
   children?: React.ReactNode;
   icon?: LucideIcon;
   confirmLabel?: string;
   pendingLabel?: string;
   cancelLabel?: string;
   variant?: "default" | "destructive";
-  /**
-   * Runs when confirmed; the dialog shows a spinner until it settles.
-   * Return `false` to keep the dialog open (e.g. on error).
-   */
+
   onConfirm: () => Promise<boolean | void> | boolean | void;
 };
 
-/** Reusable "are you sure?" modal. Replaces window.confirm everywhere. */
 export function ConfirmDialog({
   open,
   onOpenChange,

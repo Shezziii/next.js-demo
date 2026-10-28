@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 type CardGridSkeletonProps = {
   count?: number;
   className?: string;
-  /** Show an image block at the top of each card. */
   withMedia?: boolean;
 };
 
